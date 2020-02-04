@@ -33,6 +33,8 @@ const (
 func NewStatefulSetForCR(cluster *redisv1alpha1.DistributedRedisCluster, ssName, svcName string,
 	labels map[string]string) (*appsv1.StatefulSet, error) {
 	password := redisPassword(cluster)
+	//FIXME: for container resource monitoring
+	monitorEnvs := getMonitorEnvs(labels)
 	volumes := redisVolumes(cluster)
 	namespace := cluster.Namespace
 	spec := cluster.Spec
@@ -64,7 +66,7 @@ func NewStatefulSetForCR(cluster *redisv1alpha1.DistributedRedisCluster, ssName,
 					SecurityContext: spec.SecurityContext,
 					NodeSelector:    cluster.Spec.NodeSelector,
 					Containers: []corev1.Container{
-						redisServerContainer(cluster, password),
+						redisServerContainer(cluster, password, monitorEnvs /*FIXME: for container resource monitoring*/),
 					},
 					Volumes: volumes,
 				},
@@ -85,13 +87,41 @@ func NewStatefulSetForCR(cluster *redisv1alpha1.DistributedRedisCluster, ssName,
 		ss.Spec.Template.Spec.Containers = append(ss.Spec.Template.Spec.Containers, redisExporterContainer(cluster, password))
 	}
 	if cluster.IsRestoreFromBackup() && cluster.Status.Restore.Backup != nil {
-		initContainer, err := redisInitContainer(cluster, password)
+		initContainer, err := redisInitContainer(cluster, password, monitorEnvs /*FIXME: for container resource monitoring*/)
 		if err != nil {
 			return nil, err
 		}
 		ss.Spec.Template.Spec.InitContainers = append(ss.Spec.Template.Spec.InitContainers, initContainer)
 	}
 	return ss, nil
+}
+
+//FIXME: for container resource monitoring
+func getMonitorEnvs(labels map[string]string) []corev1.EnvVar {
+	var envs []corev1.EnvVar
+
+	if name, ok := labels["app.kubernetes.io/name"]; ok {
+		envs = append(envs, corev1.EnvVar{
+			Name:  "APP_NAME",
+			Value: name,
+		})
+	}
+
+	if instance, ok := labels["app.kubernetes.io/instance"]; ok {
+		envs = append(envs, corev1.EnvVar{
+			Name:  "APP_INSTANCE",
+			Value: instance,
+		})
+	}
+
+	if component, ok := labels["app.kubernetes.io/component"]; ok {
+		envs = append(envs, corev1.EnvVar{
+			Name:  "APP_COMPONENT",
+			Value: component,
+		})
+	}
+
+	return envs
 }
 
 func getAffinity(affinity *corev1.Affinity, labels map[string]string) *corev1.Affinity {
@@ -195,7 +225,8 @@ func mergeRenameCmds(userCmds []string, systemRenameCmdMap map[string]string) []
 	return cmds
 }
 
-func redisServerContainer(cluster *redisv1alpha1.DistributedRedisCluster, password *corev1.EnvVar) corev1.Container {
+func redisServerContainer(cluster *redisv1alpha1.DistributedRedisCluster, password *corev1.EnvVar,
+	monitorEnvs []corev1.EnvVar /*FIXME: for container resource monitoring*/) corev1.Container {
 	probeArg := "redis-cli -h $(hostname)"
 
 	container := corev1.Container{
@@ -265,6 +296,8 @@ func redisServerContainer(cluster *redisv1alpha1.DistributedRedisCluster, passwo
 	if password != nil {
 		container.Env = append(container.Env, *password)
 	}
+	/*FIXME: for container resource monitoring*/
+	container.Env = append(container.Env, monitorEnvs...)
 
 	return container
 }
@@ -295,7 +328,8 @@ func redisExporterContainer(cluster *redisv1alpha1.DistributedRedisCluster, pass
 	return container
 }
 
-func redisInitContainer(cluster *redisv1alpha1.DistributedRedisCluster, password *corev1.EnvVar) (corev1.Container, error) {
+func redisInitContainer(cluster *redisv1alpha1.DistributedRedisCluster, password *corev1.EnvVar,
+	monitorEnvs []corev1.EnvVar /*FIXME: for container resource monitoring*/) (corev1.Container, error) {
 	backup := cluster.Status.Restore.Backup
 	backupSpec := backup.Spec.Backend
 	bucket, err := backupSpec.Container()
@@ -355,6 +389,9 @@ func redisInitContainer(cluster *redisv1alpha1.DistributedRedisCluster, password
 	if password != nil {
 		container.Env = append(container.Env, *password)
 	}
+	/*FIXME: for container resource monitoring*/
+	container.Env = append(container.Env, monitorEnvs...)
+
 	if backup.Spec.PodSpec != nil {
 		container.Resources = backup.Spec.PodSpec.Resources
 		container.LivenessProbe = backup.Spec.PodSpec.LivenessProbe
