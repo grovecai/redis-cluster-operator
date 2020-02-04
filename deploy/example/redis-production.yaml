@@ -5,6 +5,10 @@ metadata:
     # if your operator run as cluster-scoped, add this annotations
     redis.kun/scope: cluster-scoped
   name: example-distributedrediscluster
+  labels:
+    #监控相关的labels
+    app.kubernetes.io/name: redis
+    app.kubernetes.io/instance: example-distributedrediscluster
 spec:
   # Add fields here
   serviceName: redis-svc

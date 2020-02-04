@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/go-logr/logr"
@@ -55,6 +56,9 @@ func (r *realEnsureResource) EnsureRedisStatefulsets(cluster *redisv1alpha1.Dist
 		svcName := statefulsets.ClusterHeadlessSvcName(cluster.Spec.ServiceName, i)
 		// assign label
 		labels[redisv1alpha1.StatefulSetLabel] = name
+		//FIXME: add labels for monitoring
+		labels["app.kubernetes.io/component"] = fmt.Sprintf("shard-%d", i)
+
 		if stsUpdated, err := r.ensureRedisStatefulset(cluster, name, svcName, labels); err != nil {
 			return false, err
 		} else if stsUpdated {
@@ -156,6 +160,8 @@ func (r *realEnsureResource) EnsureRedisHeadLessSvcs(cluster *redisv1alpha1.Dist
 		name := statefulsets.ClusterStatefulSetName(cluster.Name, i)
 		// assign label
 		labels[redisv1alpha1.StatefulSetLabel] = name
+		//FIXME: add labels for monitoring
+		labels["app.kubernetes.io/component"] = fmt.Sprintf("shard-%d", i)
 		if err := r.ensureRedisHeadLessSvc(cluster, svcName, labels); err != nil {
 			return err
 		}
@@ -177,6 +183,8 @@ func (r *realEnsureResource) ensureRedisHeadLessSvc(cluster *redisv1alpha1.Distr
 func (r *realEnsureResource) EnsureRedisSvc(cluster *redisv1alpha1.DistributedRedisCluster, labels map[string]string) error {
 	name := cluster.Spec.ServiceName
 	delete(labels, redisv1alpha1.StatefulSetLabel)
+	//FIXME: for monitoring
+	delete(labels, "app.kubernetes.io/component")
 	_, err := r.svcClient.GetService(cluster.Namespace, name)
 	if err != nil && errors.IsNotFound(err) {
 		r.logger.WithValues("Service.Namespace", cluster.Namespace, "Service.Name", cluster.Spec.ServiceName).

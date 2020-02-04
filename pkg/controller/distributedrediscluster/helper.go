@@ -29,6 +29,9 @@ const passwordKey = "password"
 func getLabels(cluster *redisv1alpha1.DistributedRedisCluster) map[string]string {
 	dynLabels := map[string]string{
 		redisv1alpha1.LabelClusterName: cluster.Name,
+		//FIXME: for monitoring
+		//"app.kubernetes.io/name": "redis",
+		//"app.kubernetes.io/instance": cluster.Name,
 	}
 	return utils.MergeLabels(defaultLabels, dynLabels, cluster.Labels)
 }

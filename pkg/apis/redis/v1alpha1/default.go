@@ -53,10 +53,11 @@ func (in *DistributedRedisCluster) DefaultSpec(log logr.Logger) bool {
 			in.Spec.Annotations = make(map[string]string)
 			update = true
 		}
-
-		in.Spec.Annotations["prometheus.io/scrape"] = "true"
-		in.Spec.Annotations["prometheus.io/path"] = PrometheusExporterTelemetryPath
-		in.Spec.Annotations["prometheus.io/port"] = fmt.Sprintf("%d", mon.Prometheus.Port)
+		//FIXME: remove initialization of monitor related annotation
+		//初始化CRD监控的相关的annotation
+		//in.Spec.Annotations["prometheus.io/scrape"] = "true"
+		//in.Spec.Annotations["prometheus.io/path"] = PrometheusExporterTelemetryPath
+		//in.Spec.Annotations["prometheus.io/port"] = fmt.Sprintf("%d", mon.Prometheus.Port)
 	}
 	return update
 }
