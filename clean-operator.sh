@@ -11,4 +11,6 @@ kubectl delete -f deploy/service_account.yaml
 kubectl delete -f deploy/crds/redis.kun_redisclusterbackups_crd.yaml
 kubectl delete -f deploy/crds/redis.kun_distributedredisclusters_crd.yaml
 
+kubectl delete -f deploy/example/redis-production-log-configmap.yaml
+
 kubectl get deployment

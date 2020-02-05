@@ -6,9 +6,11 @@ metadata:
     redis.kun/scope: cluster-scoped
   name: example-distributedrediscluster
   labels:
-    #监控相关的labels
+    # 监控&日志相关的labels
     app.kubernetes.io/name: redis
     app.kubernetes.io/instance: example-distributedrediscluster
+    app.kubernetes.io/version: "5.0"
+    app.kubernetes.io/managed-by: jvessel
 spec:
   # Add fields here
   serviceName: redis-svc

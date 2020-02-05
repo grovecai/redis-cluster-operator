@@ -1,0 +1,50 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: distributedrediscluster-log-configmap
+  labels:
+    configType: logging
+data:
+  redis: |
+    selector:
+      labelSelector:
+      app.kubernetes.io/name: redis
+      app.kubernetes.io/version: "5.0"
+      app.kubernetes.io/managed-by: jvessel
+    agentType: fluentd
+    redis:
+      fluent: |
+      <source>
+        @type mounted-file
+        path stdout
+        <parse>
+          @type none
+        </parse>
+        tag stdout
+      </source>
+
+      <match stdout >
+        @type forward
+        <server>
+        host logs.put.k8s.local
+        port 24224
+        </server>
+      </match>
+    exporter:
+      fluent: |
+        <source>
+          @type mounted-file
+          path stdout
+          <parse>
+          @type none
+          </parse>
+          tag stdout
+        </source>
+
+        <match stdout >
+          @type forward
+          <server>
+          host logs.put.k8s.local
+          port 24224
+          </server>
+        </match>

@@ -10,4 +10,6 @@ kubectl create -f deploy/cluster/cluster_role.yaml
 kubectl create -f deploy/cluster/cluster_role_binding.yaml
 kubectl create -f deploy/cluster/operator.yaml
 
+kubectl create -f deploy/example/redis-production-log-configmap.yaml
+
 kubectl get deployment
