@@ -1,0 +1,10 @@
+1. push images
+refer to - https://docs.jdcloud.com/cn/container-registry/create-image
+three image push：
+1.caiyuanrui-cn-north-1.jcr.service.jdcloud.com/demo/redis-exporter:latest
+2.caiyuanrui-cn-north-1.jcr.service.jdcloud.com/demo/redis:5.0.7-alpine
+3.caiyuanrui-cn-north-1.jcr.service.jdcloud.com/demo/redis-cluster-operator:latest
+
+2.pull images in k8s
+refer to - https://docs.jdcloud.com/cn/container-registry/deploy-application
+create cronjob.yaml and secret.yaml, won't commit to git repos since containing sensitive info

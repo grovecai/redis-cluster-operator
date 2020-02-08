@@ -17,13 +17,13 @@ spec:
         - name: redis-cluster-operator
           # Replace this with the built image name
           #image: uhub.service.ucloud.cn/operator/redis-cluster-operator:latest
-          image: redis-cluster-operator:latest
+          image: caiyuanrui-cn-north-1.jcr.service.jdcloud.com/demo/redis-cluster-operator:latest
           command:
           - redis-cluster-operator
           args:
           - --rename-command-path=/etc/redisconf
           - --rename-command-file=redis.conf
-          imagePullPolicy: IfNotPresent
+          imagePullPolicy: Always
           env:
             - name: WATCH_NAMESPACE
               value: ""
@@ -36,6 +36,8 @@ spec:
           volumeMounts:
             - name: redisconf
               mountPath: /etc/redisconf
+      imagePullSecrets:
+        - name: jcr-pull-secret
       volumes:
         - name: redisconf
           configMap:

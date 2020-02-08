@@ -16,7 +16,8 @@ spec:
   serviceName: redis-svc
   masterSize: 3
   clusterReplicas: 1
-  image: redis:5.0.7-alpine
+  #image: redis:5.0.7-alpine
+  image: caiyuanrui-cn-north-1.jcr.service.jdcloud.com/demo/redis:5.0.7-alpine
   resources:
     limits:
       cpu: 100m
@@ -25,7 +26,8 @@ spec:
       cpu: 100m
       memory: 50Mi
   monitor:
-    image: oliver006/redis_exporter
+    #image: oliver006/redis_exporter
+    image: caiyuanrui-cn-north-1.jcr.service.jdcloud.com/demo/redis-exporter:latest
   config:
     activerehashing: "yes"
     appendfsync: everysec

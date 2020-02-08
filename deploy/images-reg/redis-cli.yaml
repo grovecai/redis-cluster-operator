@@ -1,0 +1,25 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  labels:
+    run: redis-cli
+  name: redis-cli
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      run: redis-cli
+  template:
+    metadata:
+      labels:
+        run: redis-cli
+    spec:
+      containers:
+        - image: caiyuanrui-cn-north-1.jcr.service.jdcloud.com/demo/redis:5.0.7-alpine
+          imagePullPolicy: Always
+          command:
+            - sleep
+            - "36000"
+          name: redis
+      imagePullSecrets:
+        - name: jcr-pull-secret
